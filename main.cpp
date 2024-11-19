@@ -15,9 +15,14 @@ int *genRandomArr(int arrLen, int min, int max)
 }
 
 int main(){
-    int hidOutLayerCount = 100;
-    int * hidOutLayerSizes = genRandomArr(hidOutLayerCount, 100, 1000);
-    NeuralNet* NN = new NeuralNet(hidOutLayerCount, hidOutLayerSizes);
+    srand(time(NULL));
+    const int hidOutLayerCount = 2;
+    const int inputLayerSize = 2;
+    int * hidOutLayerSizes = genRandomArr(hidOutLayerCount, 3, 9);
+    NeuralNet* NN = new NeuralNet(inputLayerSize, hidOutLayerCount, hidOutLayerSizes);
 
     NN->describe();
+
+    float hello[] = {0.4, 2.4}; 
+    NN->predict(hello, 2);
 }
