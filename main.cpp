@@ -16,13 +16,17 @@ int *genRandomArr(int arrLen, int min, int max)
 
 int main(){
     srand(time(NULL));
-    const int hidOutLayerCount = 2;
+    const int hidOutLayerCount = 20;
     const int inputLayerSize = 2;
+    const int outputLayerSize = 2;
     int * hidOutLayerSizes = genRandomArr(hidOutLayerCount, 3, 9);
-    NeuralNet* NN = new NeuralNet(inputLayerSize, hidOutLayerCount, hidOutLayerSizes);
+    NeuralNet* NN = new NeuralNet(inputLayerSize, hidOutLayerCount, hidOutLayerSizes, outputLayerSize);
 
     NN->describe();
 
     float hello[] = {0.4, 2.4}; 
     NN->predict(hello, 2);
+
+    float target[] = {1,0};
+    cout<<"\n"<<NN->cost(target, 2)<<"\n\n";
 }
