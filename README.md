@@ -1,5 +1,5 @@
 # Run
-Linux : run in bash, zsh, etc
+Linux : run following command in bash, zsh, etc
 ```bash
   make
 ```
