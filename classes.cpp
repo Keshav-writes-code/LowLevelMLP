@@ -14,16 +14,16 @@ float getRandom(int range) {
     return ((float)rand() / RAND_MAX) * range * 2 - range;
 }
 
-Neuron::Neuron(int prevLayerNeurons)
+Neuron::Neuron(int prevLayerNeurons_count)
 {
     srand(time(NULL));
-    this->prevLayerNeurons = prevLayerNeurons;
+    this->prevLayerNeurons_count = prevLayerNeurons_count;
     float randRange = 10;
     this->value = 0;
     this->bias = decimalRounder(getRandom(randRange));
-    this->weights = new float[prevLayerNeurons];
+    this->weights = new float[prevLayerNeurons_count];
 
-    for(int i = 0; i < prevLayerNeurons; i++){
+    for(int i = 0; i < prevLayerNeurons_count; i++){
         this->weights[i] = decimalRounder(getRandom(randRange));
     }
 }
@@ -65,7 +65,7 @@ void Layer::showNeurons(){
         cout<<"bias :- "<<this->neurons[i]->bias<<endl;
         cout << "weights: ";
 
-        for (int j = 0; j < this->neurons[i]->prevLayerNeurons; j++) {
+        for (int j = 0; j < this->neurons[i]->prevLayerNeurons_count; j++) {
             cout << this->neurons[i]->weights[j] << ", ";
         }
         cout<<endl<<endl;

@@ -8,8 +8,8 @@ public:
     float value;
     float bias;
     float* weights;
-    int prevLayerNeurons;
-    Neuron(int prevLayerNeurons);
+    int prevLayerNeurons_count;
+    Neuron(int prevLayerNeurons_count);
     ~Neuron();
 };
 
