@@ -29,11 +29,13 @@ class NeuralNet{
     Layer** HidOutlayers;
     int hidOutLayerCount;
     int* hidOutLayerSizes;
+    int inputLayerSize;
     public:
-    NeuralNet(int hidOutLayerCount, int* hidOutLayerSizes);
+    NeuralNet(int inputLayerSize, int hidOutLayerCount, int* hidOutLayerSizes);
     ~NeuralNet();
     void describe();
-    void feedForward(float* inputs);
+    float* feedForward(float* inputs, int inputSize);
+    void predict(float* inputs, int inputSize);
 };
 
 #endif
