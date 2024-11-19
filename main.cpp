@@ -15,9 +15,9 @@ int *genRandomArr(int arrLen, int min, int max)
 }
 
 int main(){
-    int layerCount = 100;
-    int * layerSizes = genRandomArr(layerCount, 100, 1000);
-    NeuralNet* NN = new NeuralNet(layerCount, layerSizes);
+    int hidOutLayerCount = 100;
+    int * hidOutLayerSizes = genRandomArr(hidOutLayerCount, 100, 1000);
+    NeuralNet* NN = new NeuralNet(hidOutLayerCount, hidOutLayerSizes);
 
     NN->describe();
 }

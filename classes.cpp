@@ -72,17 +72,17 @@ void Layer::showNeurons(){
     }   
 }
 
-NeuralNet::NeuralNet(int layerCount, int* layerSizes){
-    this->layerCount = layerCount;
-    this->layerSizes = layerSizes;
-    this->HidOutlayers = new Layer*[layerCount];
-    for (int i = 0; i < layerCount; i++)
+NeuralNet::NeuralNet(int hidOutLayerCount, int* hidOutLayerSizes){
+    this->hidOutLayerCount = hidOutLayerCount;
+    this->hidOutLayerSizes = hidOutLayerSizes;
+    this->HidOutlayers = new Layer*[hidOutLayerCount];
+    for (int i = 0; i < hidOutLayerCount; i++)
     {
         if (i == 0)
         {
-            this->HidOutlayers[i] = new Layer(layerSizes[i], 0);
+            this->HidOutlayers[i] = new Layer(hidOutLayerSizes[i], 0);
         }else{
-            this->HidOutlayers[i] = new Layer(layerSizes[i], layerSizes[i-1]);
+            this->HidOutlayers[i] = new Layer(hidOutLayerSizes[i], hidOutLayerSizes[i-1]);
         }
     }
 }
@@ -97,12 +97,12 @@ void NeuralNet::describe() {
     printInColor("|             Neural Network              |\n", "32");
     printInColor("+-----------------------------------------+\n", "32");
 
-    cout << "Layer Count : " << this->layerCount << endl;
+    cout << "Layer Count : " << this->hidOutLayerCount << endl;
     printInColor("Layer Sizes: \n", "36"); // Cyan
 
-    for (int i = 0; i < this->layerCount; i++) {
-        cout << setw(4) << this->layerSizes[i]; // Formatting for better spacing
-        if (i != this->layerCount - 1) {
+    for (int i = 0; i < this->hidOutLayerCount; i++) {
+        cout << setw(4) << this->hidOutLayerSizes[i]; // Formatting for better spacing
+        if (i != this->hidOutLayerCount - 1) {
             cout << " | ";
         }
         // Breaking line for better readability every 10 layers
@@ -111,4 +111,7 @@ void NeuralNet::describe() {
         }
     }
     cout<<endl<<endl;
+}
+void NeuralNet::feedForward(float* inputs){
+    
 }
