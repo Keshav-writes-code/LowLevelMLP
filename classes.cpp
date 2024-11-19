@@ -16,7 +16,6 @@ float getRandom(int range) {
 
 Neuron::Neuron(int prevLayerNeurons_count)
 {
-    srand(time(NULL));
     this->prevLayerNeurons_count = prevLayerNeurons_count;
     float randRange = 10;
     this->value = 0;
@@ -72,15 +71,16 @@ void Layer::showNeurons(){
     }   
 }
 
-NeuralNet::NeuralNet(int hidOutLayerCount, int* hidOutLayerSizes){
+NeuralNet::NeuralNet(int inputLayerSize, int hidOutLayerCount, int* hidOutLayerSizes){
     this->hidOutLayerCount = hidOutLayerCount;
     this->hidOutLayerSizes = hidOutLayerSizes;
     this->HidOutlayers = new Layer*[hidOutLayerCount];
+    this->inputLayerSize = inputLayerSize;
     for (int i = 0; i < hidOutLayerCount; i++)
     {
         if (i == 0)
         {
-            this->HidOutlayers[i] = new Layer(hidOutLayerSizes[i], 0);
+            this->HidOutlayers[i] = new Layer(hidOutLayerSizes[i], inputLayerSize);
         }else{
             this->HidOutlayers[i] = new Layer(hidOutLayerSizes[i], hidOutLayerSizes[i-1]);
         }
@@ -112,6 +112,55 @@ void NeuralNet::describe() {
     }
     cout<<endl<<endl;
 }
-void NeuralNet::feedForward(float* inputs){
+float* NeuralNet::feedForward(float* inputArr, int inputSize){
+    Layer* prevLayer = new Layer(inputLayerSize,0);
+    if (inputSize != this->inputLayerSize) throw runtime_error("Expected Input was Not Received");
+    for (int i = 0; i < this->inputLayerSize; i++){
+        prevLayer->neurons[i]->value = inputArr[i];
+    }
+
+    // for Traversing Each Layer
+    for (int i = 0; i < this->hidOutLayerCount; i++)
+    {
+        // for Traversing Each Neuron of a Layer
+        for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++)
+        {
+            Neuron* cNeuron = this->HidOutlayers[i]->neurons[i2];
+            // For traversing each Weight of current Neuron
+            for (int i3 = 0; i3 < cNeuron->prevLayerNeurons_count; i3++)
+            {
+                cNeuron->value += prevLayer->neurons[i3]->value * cNeuron->weights[i3];
+            }
+            cNeuron->value += cNeuron->bias;
+            // TO DIplay Each Neuron's Final Activation in a Formatted way
+            // cout<<"Neuron ["<<i<<"]"<<"["<<i2<<"] : "<<cNeuron->value<<endl;
+        }
+        prevLayer = this->HidOutlayers[i];
+    }
     
+    // for Returning output
+    const int outputSize = this->hidOutLayerSizes[this->hidOutLayerCount-1];
+    float* out = new float[outputSize];
+    for (int i = 0; i < outputSize; i++)
+    {
+        out[i] = prevLayer->neurons[i]->value;
+    }
+    return out;
+}
+
+void NeuralNet::predict(float* inputs, int inputSize){
+    cout<<"Inputs : ";
+    for (int i = 0; i < inputSize; i++)
+    {
+        if (i != 0){cout<<", ";}
+        cout<<inputs[i];
+        if (i == inputSize-1){cout<<endl;}
+    }
+    float* outputs = this->feedForward(inputs, inputSize);
+    const int outputSize = this->hidOutLayerSizes[this->hidOutLayerCount-1];
+    cout<<"Outputs : \n";
+    for (int i = 0; i < outputSize; i++)
+    {
+        cout<<i<<" : "<<outputs[i]<<endl;
+    }
 }
