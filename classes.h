@@ -35,9 +35,11 @@ class NeuralNet{
     NeuralNet(int inputLayerSize, int hidOutLayerCount, int* hidOutLayerSizes, int outputLayerSize);
     ~NeuralNet();
     void describe();
+    void resetNeuronsActivations();
     float* feedForward(float* inputs, int inputSize);
     void predict(float* inputs, int inputSize);
     float cost(float* target, int targetArr_size);
+    void backPropogate(float* inputArr, int inputSize, float* target, int targetArr_size);
 };
 
 #endif
