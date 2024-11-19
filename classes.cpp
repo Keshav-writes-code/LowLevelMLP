@@ -10,14 +10,14 @@ float decimalRounder(float x) {
     return round(x * 100.0) / 100.0;
 }
 
-float getRandom(int range) {
+float getRandom(float range) {
     return ((float)rand() / RAND_MAX) * range * 2 - range;
 }
 
 Neuron::Neuron(int prevLayerNeurons_count)
 {
     this->prevLayerNeurons_count = prevLayerNeurons_count;
-    float randRange = 10;
+    float randRange = 1;
     this->value = 0;
     this->bias = decimalRounder(getRandom(randRange));
     this->weights = new float[prevLayerNeurons_count];
@@ -71,17 +71,23 @@ void Layer::showNeurons(){
     }   
 }
 
-NeuralNet::NeuralNet(int inputLayerSize, int hidOutLayerCount, int* hidOutLayerSizes){
+NeuralNet::NeuralNet(int inputLayerSize, int hidOutLayerCount, int* hidOutLayerSizes, int outputLayerSize){
     this->hidOutLayerCount = hidOutLayerCount;
     this->hidOutLayerSizes = hidOutLayerSizes;
     this->HidOutlayers = new Layer*[hidOutLayerCount];
     this->inputLayerSize = inputLayerSize;
+    this->outputLayerSize = outputLayerSize;
     for (int i = 0; i < hidOutLayerCount; i++)
     {
         if (i == 0)
         {
             this->HidOutlayers[i] = new Layer(hidOutLayerSizes[i], inputLayerSize);
-        }else{
+        }
+        else if(i == hidOutLayerCount-1){
+            this->HidOutlayers[i] = new Layer(outputLayerSize, hidOutLayerSizes[i-1]);
+            hidOutLayerSizes[i] = outputLayerSize;
+        }
+        else{
             this->HidOutlayers[i] = new Layer(hidOutLayerSizes[i], hidOutLayerSizes[i-1]);
         }
     }
@@ -153,7 +159,8 @@ void NeuralNet::predict(float* inputs, int inputSize){
     for (int i = 0; i < inputSize; i++)
     {
         if (i != 0){cout<<", ";}
-        cout<<inputs[i];
+        const float result = decimalRounder(inputs[i]);
+        cout<<result;
         if (i == inputSize-1){cout<<endl;}
     }
     float* outputs = this->feedForward(inputs, inputSize);
@@ -161,6 +168,19 @@ void NeuralNet::predict(float* inputs, int inputSize){
     cout<<"Outputs : \n";
     for (int i = 0; i < outputSize; i++)
     {
-        cout<<i<<" : "<<outputs[i]<<endl;
+        const float result = decimalRounder(outputs[i]);
+        cout<<i<<" : "<<result<<endl;
     }
+}
+
+float NeuralNet::cost(float* targetArr, int targetArr_size){
+    Layer* outLayer = this->HidOutlayers[this->hidOutLayerCount-1];
+    if (targetArr_size != this->outputLayerSize) throw runtime_error("Expected Target Array Size was Not Received");
+
+    float cost = 0;
+    for (int i = 0; i < this->outputLayerSize; i++)
+    {
+        cost += pow( outLayer->neurons[i]->value - targetArr[i], 2);
+    }
+    return cost;
 }
