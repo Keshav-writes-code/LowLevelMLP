@@ -16,9 +16,9 @@ public:
 class Layer
 {
 private:
-    Neuron** neurons;
     int size;
 public:
+    Neuron** neurons;
     Layer(int size, int prevLayerSize);
     ~Layer();
     void showNeurons();
@@ -27,13 +27,13 @@ public:
 class NeuralNet{
     private:
     Layer** HidOutlayers;
-    int layerCount;
-    int* layerSizes;
-    
+    int hidOutLayerCount;
+    int* hidOutLayerSizes;
     public:
-    NeuralNet(int layerCount, int* layerSizes);
+    NeuralNet(int hidOutLayerCount, int* hidOutLayerSizes);
     ~NeuralNet();
     void describe();
+    void feedForward(float* inputs);
 };
 
 #endif
