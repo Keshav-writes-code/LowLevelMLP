@@ -118,7 +118,21 @@ void NeuralNet::describe() {
     }
     cout<<endl<<endl;
 }
+
+void NeuralNet::resetNeuronsActivations(){
+    // for Traversing Each Layer
+    for (int i = 0; i < this->hidOutLayerCount; i++)
+    {
+        // for Traversing Each Neuron of a Layer
+        for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++)
+        {
+            this->HidOutlayers[i]->neurons[i2]->value = 0;
+        }
+    }
+}
+
 float* NeuralNet::feedForward(float* inputArr, int inputSize){
+    this->resetNeuronsActivations();
     Layer* prevLayer = new Layer(inputLayerSize,0);
     if (inputSize != this->inputLayerSize) throw runtime_error("Expected Input was Not Received");
     for (int i = 0; i < this->inputLayerSize; i++){
@@ -183,4 +197,13 @@ float NeuralNet::cost(float* targetArr, int targetArr_size){
         cost += pow( outLayer->neurons[i]->value - targetArr[i], 2);
     }
     return cost;
+}
+
+void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, int targetArr_size){
+    float cost = this->cost(targetArr, targetArr_size);
+    
+
+    this->HidOutlayers[0]->neurons[0]->weights[0] +=1;
+    this->feedForward(inputArr, inputSize);
+    cost = this->cost(targetArr, targetArr_size);
 }
