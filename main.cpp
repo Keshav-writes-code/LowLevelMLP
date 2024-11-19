@@ -29,4 +29,6 @@ int main(){
 
     float target[] = {1,0};
     cout<<"\n"<<NN->cost(target, 2)<<"\n\n";
+
+    NN->backPropogate(hello, 2, target, 2);
 }
