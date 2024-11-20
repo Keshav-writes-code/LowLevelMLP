@@ -20,13 +20,15 @@ int main(){
     const int inputLayerSize = 2;
     const int outputLayerSize = 2;
     int * hidOutLayerSizes = genRandomArr(hidOutLayerCount, 3, 9);
-    NeuralNet* NN = new NeuralNet(inputLayerSize, hidOutLayerCount, hidOutLayerSizes, outputLayerSize);
+    NeuralNet* NN = new NeuralNet(inputLayerSize, hidOutLayerCount, hidOutLayerSizes, outputLayerSize, 0.03);
 
     NN->describe();
 
     float hello[] = {0.4, 2.4}; 
     NN->predict(hello, 2);
 
-    float target[] = {1,0};
-    NN->backPropogate(hello, 2, target, 2);
+    float target[] = {2,0};
+    NN->backPropogate(hello, 2, target, 2, 10);
+
+    NN->predict(hello, 2);
 }
