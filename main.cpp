@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int *genRandomArr(int arrLen, int min, int max)
+int *genRandomInts(int arrLen, int min, int max)
 {
     int *arr = (int *)malloc(arrLen * sizeof(int));
     for (int i = 0; i < arrLen; i++)
@@ -13,22 +13,31 @@ int *genRandomArr(int arrLen, int min, int max)
     }
     return arr;
 }
-
+float *genRandomFloats(int arrLen, float min, float max)
+{
+    float *arr = (float *)malloc(arrLen * sizeof(float));
+    for (int i = 0; i < arrLen; i++)
+    {
+        float randVal = ((float)rand() / RAND_MAX) * (max - min) + min;
+        arr[i] = randVal;
+    }
+    return arr;
+}
 int main(){
     srand(time(NULL));
+    const int inputLayerSize = 20;
     const int hidOutLayerCount = 20;
-    const int inputLayerSize = 2;
-    const int outputLayerSize = 2;
-    int * hidOutLayerSizes = genRandomArr(hidOutLayerCount, 3, 9);
+    const int outputLayerSize = 10;
+    int * hidOutLayerSizes = genRandomInts(hidOutLayerCount, 3, 9);
     NeuralNet* NN = new NeuralNet(inputLayerSize, hidOutLayerCount, hidOutLayerSizes, outputLayerSize, 0.03);
 
     NN->describe();
 
-    float hello[] = {0.4, 2.4}; 
-    NN->predict(hello, 2);
+    float* input1 = genRandomFloats(inputLayerSize, 0, 1000); 
+    NN->predict(input1, inputLayerSize);
 
-    float target[] = {2,0};
-    NN->backPropogate(hello, 2, target, 2, 10);
+    float target1[] = {2,0,0,0,0,0,0,0,0,0};
+    NN->backPropogate(input1, inputLayerSize, target1, 10, 100);
 
-    NN->predict(hello, 2);
+    NN->predict(input1, inputLayerSize);
 }
