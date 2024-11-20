@@ -14,6 +14,15 @@ float getRandom(float range) {
     return ((float)rand() / RAND_MAX) * range * 2 - range;
 }
 
+float sigmoid(float x) {
+    return 1 / (1 + exp(-x));
+}
+
+float relu(float x) {
+	if (x < 0) return 0;
+	return x;
+}
+
 Neuron::Neuron(int prevLayerNeurons_count)
 {
     this->prevLayerNeurons_count = prevLayerNeurons_count;
@@ -71,12 +80,13 @@ void Layer::showNeurons(){
     }   
 }
 
-NeuralNet::NeuralNet(int inputLayerSize, int hidOutLayerCount, int* hidOutLayerSizes, int outputLayerSize){
+NeuralNet::NeuralNet(int inputLayerSize, int hidOutLayerCount, int* hidOutLayerSizes, int outputLayerSize, float lRate){
     this->hidOutLayerCount = hidOutLayerCount;
     this->hidOutLayerSizes = hidOutLayerSizes;
     this->HidOutlayers = new Layer*[hidOutLayerCount];
     this->inputLayerSize = inputLayerSize;
     this->outputLayerSize = outputLayerSize;
+		this->lRate = lRate;
     for (int i = 0; i < hidOutLayerCount; i++)
     {
         if (i == 0)
@@ -146,12 +156,13 @@ float* NeuralNet::feedForward(float* inputArr, int inputSize){
         for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++)
         {
             Neuron* cNeuron = this->HidOutlayers[i]->neurons[i2];
+						float weightedSum = 0;
             // For traversing each Weight of current Neuron
             for (int i3 = 0; i3 < cNeuron->prevLayerNeurons_count; i3++)
             {
-                cNeuron->value += prevLayer->neurons[i3]->value * cNeuron->weights[i3];
+                weightedSum += prevLayer->neurons[i3]->value * cNeuron->weights[i3];
             }
-            cNeuron->value += cNeuron->bias;
+            cNeuron->value += relu(weightedSum) + cNeuron->bias;
             // TO DIplay Each Neuron's Final Activation in a Formatted way
             // cout<<"Neuron ["<<i<<"]"<<"["<<i2<<"] : "<<cNeuron->value<<endl;
         }
@@ -198,12 +209,46 @@ float NeuralNet::cost(float* targetArr, int targetArr_size){
     }
     return cost;
 }
-
-void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, int targetArr_size){
-    float cost = this->cost(targetArr, targetArr_size);
-    
-
-    this->HidOutlayers[0]->neurons[0]->weights[0] +=1;
+float NeuralNet::getParamTCostDerivative(float& param, float* inputArr, int inputSize, float* targetArr, int targetArr_size){
     this->feedForward(inputArr, inputSize);
-    cost = this->cost(targetArr, targetArr_size);
+    float derivative = 0.0001;
+    float previousCost = this->cost(targetArr, targetArr_size);
+    param += derivative;
+
+    this->feedForward(inputArr, inputSize);
+    float newCost = this->cost(targetArr, targetArr_size);
+    
+    this->feedForward(inputArr, inputSize);
+    param -= derivative;
+    return (newCost - previousCost) / derivative;
+}
+
+void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, int targetArr_size, int epochs){
+    this->feedForward(inputArr, inputSize);
+    float oldCost = this->cost(targetArr, targetArr_size);
+
+    // Network Learning
+    for (int i4 = 0; i4 < epochs; i4++){
+        // for Traversing Each Layer
+        for (int i = 0; i < this->hidOutLayerCount; i++)
+        {
+            // for Traversing Each Neuron of a Layer
+            for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++)
+            {
+								float biasTCostDerivative = this->getParamTCostDerivative(this->HidOutlayers[i]->neurons[i2]->bias,inputArr, inputSize, targetArr, targetArr_size);
+								this->HidOutlayers[i]->neurons[i2]->bias -= (biasTCostDerivative * this->lRate);
+                // For traversing each Weight of current Neuron
+                for (int i3 = 0; i3 < this->HidOutlayers[i]->neurons[i2]->prevLayerNeurons_count; i3++)
+                {
+                    float weightTCostDerivative = this->getParamTCostDerivative(this->HidOutlayers[i]->neurons[i2]->weights[i3],inputArr, inputSize, targetArr, targetArr_size);
+                    this->HidOutlayers[i]->neurons[i2]->weights[i3] -= (weightTCostDerivative * this->lRate);           
+                }
+            }   
+        }    
+    }
+    
+    this->feedForward(inputArr, inputSize);
+    float newCost = this->cost(targetArr, targetArr_size);
+    cout<<"oldCost : "<<oldCost<<endl;
+    cout<<"newCost : "<<newCost<<endl;
 }
