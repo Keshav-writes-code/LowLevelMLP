@@ -235,8 +235,8 @@ void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, 
             // for Traversing Each Neuron of a Layer
             for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++)
             {
-								float biasTCostDerivative = this->getParamTCostDerivative(this->HidOutlayers[i]->neurons[i2]->bias,inputArr, inputSize, targetArr, targetArr_size);
-								this->HidOutlayers[i]->neurons[i2]->bias -= (biasTCostDerivative * this->lRate);
+                float biasTCostDerivative = this->getParamTCostDerivative(this->HidOutlayers[i]->neurons[i2]->bias,inputArr, inputSize, targetArr, targetArr_size);
+                this->HidOutlayers[i]->neurons[i2]->bias -= (biasTCostDerivative * this->lRate);
                 // For traversing each Weight of current Neuron
                 for (int i3 = 0; i3 < this->HidOutlayers[i]->neurons[i2]->prevLayerNeurons_count; i3++)
                 {
