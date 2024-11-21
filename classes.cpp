@@ -22,6 +22,10 @@ float relu(float x) {
 	if (x < 0) return 0;
 	return x;
 }
+template<typename T>
+void printInColor(const T& val, const string& colorCode) {
+    cout << "\033[" << colorCode << "m" << val << "\033[0m";
+}
 
 Neuron::Neuron(int prevLayerNeurons_count)
 {
@@ -103,10 +107,6 @@ NeuralNet::NeuralNet(int inputLayerSize, int hidOutLayerCount, int* hidOutLayerS
     }
 }
 
-void printInColor(const string& text, const string& colorCode) {
-    cout << "\033[" << colorCode << "m" << text << "\033[0m";
-}
-
 void NeuralNet::describe() {
     // Using ANSI escape codes to make the terminal output colorful
     printInColor("\n+-----------------------------------------+\n", "32"); // Green
@@ -162,7 +162,7 @@ float* NeuralNet::feedForward(float* inputArr, int inputSize){
             {
                 weightedSum += prevLayer->neurons[i3]->value * cNeuron->weights[i3];
             }
-            cNeuron->value += relu(weightedSum) + cNeuron->bias;
+            cNeuron->value += sigmoid(weightedSum) + cNeuron->bias;
             // TO DIplay Each Neuron's Final Activation in a Formatted way
             // cout<<"Neuron ["<<i<<"]"<<"["<<i2<<"] : "<<cNeuron->value<<endl;
         }
@@ -190,11 +190,26 @@ void NeuralNet::predict(float* inputs, int inputSize){
     }
     float* outputs = this->feedForward(inputs, inputSize);
     const int outputSize = this->hidOutLayerSizes[this->hidOutLayerCount-1];
+    // Get highest Output
+    float max = outputs[0];
+    int maxIndex = 0;
+    for (int i = 1; i < outputSize; i++)
+    {
+        if (outputs[i] > max){
+            max = outputs[i];
+            maxIndex = i;
+        }
+    }
+
     cout<<"Outputs : \n";
     for (int i = 0; i < outputSize; i++)
     {
         const float result = decimalRounder(outputs[i]);
-        cout<<i<<" : "<<result<<endl;
+        string color = "32"; // Green
+        if (i != maxIndex){color = "31";} // Red
+        string printed = "[" + to_string(i) + "] : " + to_string( decimalRounder(result));
+        printInColor(printed, color);
+        cout<<endl;
     }
 }
 
@@ -210,17 +225,19 @@ float NeuralNet::cost(float* targetArr, int targetArr_size){
     return cost;
 }
 float NeuralNet::getParamTCostDerivative(float& param, float* inputArr, int inputSize, float* targetArr, int targetArr_size){
+    float derivative = 0;
     this->feedForward(inputArr, inputSize);
-    float derivative = 0.0001;
+    float diff = 0.0001;
     float previousCost = this->cost(targetArr, targetArr_size);
-    param += derivative;
+    param += diff;
 
     this->feedForward(inputArr, inputSize);
     float newCost = this->cost(targetArr, targetArr_size);
     
     this->feedForward(inputArr, inputSize);
-    param -= derivative;
-    return (newCost - previousCost) / derivative;
+    param -= diff;
+    derivative = (newCost - previousCost) / diff;
+    return derivative;
 }
 
 void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, int targetArr_size, int epochs){
@@ -229,8 +246,8 @@ void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, 
 
     // Network Learning
     for (int i4 = 0; i4 < epochs; i4++){
-        // for Traversing Each Layer
-        for (int i = 0; i < this->hidOutLayerCount; i++)
+        // for Traversing Each Layer in reverse order
+        for (int i = this->hidOutLayerCount - 1; i >= 0; i--)
         {
             // for Traversing Each Neuron of a Layer
             for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++)
@@ -240,7 +257,8 @@ void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, 
                 // For traversing each Weight of current Neuron
                 for (int i3 = 0; i3 < this->HidOutlayers[i]->neurons[i2]->prevLayerNeurons_count; i3++)
                 {
-                    float weightTCostDerivative = this->getParamTCostDerivative(this->HidOutlayers[i]->neurons[i2]->weights[i3],inputArr, inputSize, targetArr, targetArr_size);
+                    float weightTCostDerivative =0;
+                    weightTCostDerivative = this->getParamTCostDerivative(this->HidOutlayers[i]->neurons[i2]->weights[i3],inputArr, inputSize, targetArr, targetArr_size);
                     this->HidOutlayers[i]->neurons[i2]->weights[i3] -= (weightTCostDerivative * this->lRate);           
                 }
             }   
