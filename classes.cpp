@@ -179,7 +179,7 @@ float* NeuralNet::feedForward(float* inputArr, int inputSize){
     return out;
 }
 
-void NeuralNet::predict(float* inputs, int inputSize){
+void NeuralNet::predict(float* inputs, int inputSize, float* target, int targetSize){
     cout<<"Inputs : ";
     for (int i = 0; i < inputSize; i++)
     {
@@ -207,8 +207,7 @@ void NeuralNet::predict(float* inputs, int inputSize){
         const float result = decimalRounder(outputs[i]);
         string color = "32"; // Green
         if (i != maxIndex){color = "31";} // Red
-        string printed = "[" + to_string(i) + "] : " + to_string( decimalRounder(result));
-        printInColor(printed, color);
+        cout << "\033[" << color << "m" <<  "[" << to_string(i) << "] : " << result << " => " << target[i] << "\033[0m";
         cout<<endl;
     }
 }
@@ -240,35 +239,34 @@ float NeuralNet::getParamTCostDerivative(float& param, float* inputArr, int inpu
     return derivative;
 }
 
-void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, int targetArr_size, int epochs){
-    this->feedForward(inputArr, inputSize);
-    float oldCost = this->cost(targetArr, targetArr_size);
-
-    // Network Learning
-    for (int i4 = 0; i4 < epochs; i4++){
-        // for Traversing Each Layer in reverse order
-        for (int i = this->hidOutLayerCount - 1; i >= 0; i--)
+void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, int targetArr_size){
+    // for Traversing Each Layer in reverse order
+    for (int i = this->hidOutLayerCount - 1; i >= 0; i--)
+    {
+        // for Traversing Each Neuron of a Layer
+        for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++)
         {
-            // for Traversing Each Neuron of a Layer
-            for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++)
+            float biasTCostDerivative = this->getParamTCostDerivative(this->HidOutlayers[i]->neurons[i2]->bias,inputArr, inputSize, targetArr, targetArr_size);
+            this->HidOutlayers[i]->neurons[i2]->bias -= (biasTCostDerivative * this->lRate);
+            // For traversing each Weight of current Neuron
+            for (int i3 = 0; i3 < this->HidOutlayers[i]->neurons[i2]->prevLayerNeurons_count; i3++)
             {
-                float biasTCostDerivative = this->getParamTCostDerivative(this->HidOutlayers[i]->neurons[i2]->bias,inputArr, inputSize, targetArr, targetArr_size);
-                this->HidOutlayers[i]->neurons[i2]->bias -= (biasTCostDerivative * this->lRate);
-                // For traversing each Weight of current Neuron
-                for (int i3 = 0; i3 < this->HidOutlayers[i]->neurons[i2]->prevLayerNeurons_count; i3++)
-                {
-                    float weightTCostDerivative =0;
-                    weightTCostDerivative = this->getParamTCostDerivative(this->HidOutlayers[i]->neurons[i2]->weights[i3],inputArr, inputSize, targetArr, targetArr_size);
-                    this->HidOutlayers[i]->neurons[i2]->weights[i3] -= (weightTCostDerivative * this->lRate);           
-                }
-            }   
-        }    
+                float weightTCostDerivative =0;
+                weightTCostDerivative = this->getParamTCostDerivative(this->HidOutlayers[i]->neurons[i2]->weights[i3],inputArr, inputSize, targetArr, targetArr_size);
+                this->HidOutlayers[i]->neurons[i2]->weights[i3] -= (weightTCostDerivative * this->lRate);           
+            }
+        }   
+    }    
+}
+
+void NeuralNet::train(float** inputArr_2d, int input_elem_size, float** targetArr_2d, int target_elem_size, int items_count, int epochs){
+    for (int i = 0; i < epochs; i++)
+    {
+        for (int i2 = 0; i2 < items_count; i2++)
+        {
+            this->backPropogate(inputArr_2d[i2], input_elem_size, targetArr_2d[i2], target_elem_size);
+        }
     }
-    
-    this->feedForward(inputArr, inputSize);
-    float newCost = this->cost(targetArr, targetArr_size);
-    cout<<"oldCost : "<<oldCost<<endl;
-    cout<<"newCost : "<<newCost<<endl;
 }
 void NeuralNet::printParamsCount(){
     int weightsCount = this->inputLayerSize;
