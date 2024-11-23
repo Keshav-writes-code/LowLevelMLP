@@ -38,10 +38,11 @@ class NeuralNet{
     void describe();
     void resetNeuronsActivations();
     float* feedForward(float* inputs, int inputSize);
-    void predict(float* inputs, int inputSize);
+    void predict(float* inputs, int inputSize, float* target, int targetSize);
     float cost(float* target, int targetArr_size);
     float getParamTCostDerivative(float& param, float* inputArr, int inputSize, float* targetArr, int targetArr_size);
-    void backPropogate(float* inputArr, int inputSize, float* target, int targetArr_size, int epochs);
+    void backPropogate(float* inputArr, int inputSize, float* target, int targetArr_size);
+    void train(float** inputArr_2d, int input_elem_size, float** targetArr_2d, int target_elem_size, int items_count, int epochs);
     void printParamsCount();
 };
 
