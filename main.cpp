@@ -15,7 +15,7 @@ int *genRandomInts(int arrLen, int min, int max)
 }
 float *genRandomFloats(int arrLen, float min, float max)
 {
-    float *arr = (float *)malloc(arrLen * sizeof(float));
+    float *arr = new float[arrLen];
     for (int i = 0; i < arrLen; i++)
     {
         float randVal = ((float)rand() / RAND_MAX) * (max - min) + min;
@@ -23,21 +23,60 @@ float *genRandomFloats(int arrLen, float min, float max)
     }
     return arr;
 }
+float** genRandom2DFloats(int rows, int cols, float min, float max) {
+    // Allocate memory for the array of row pointers
+    float** array2D = new float*[rows];
+    // Generate each row using genRandomFloats
+    for (int i = 0; i < rows; i++) {
+        array2D[i] = genRandomFloats(cols, min, max);
+    }
+    return array2D;
+}
+
+float** getIdentityMatrix(int rows, int cols){
+    float** matrix = new float*[rows];
+    for (int i = 0; i < rows; i++) {
+        matrix[i] = new float[cols];
+        for (int j = 0; j < cols; j++) {
+            matrix[i][j] = (i == j) ? 1.0f : 0.0f;
+        }
+    }
+    return matrix;
+}
+
+void print2DArray(float** matrix, int rows, int cols){
+    cout<<"2D Array : "<<endl;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
 int main(){
     srand(time(NULL));
     const int inputLayerSize = 20;
-    const int hidOutLayerCount = 20;
+    const int hidOutLayerCount = 3;
     const int outputLayerSize = 10;
     int * hidOutLayerSizes = genRandomInts(hidOutLayerCount, 3, 9);
-    NeuralNet* NN = new NeuralNet(inputLayerSize, hidOutLayerCount, hidOutLayerSizes, outputLayerSize, 0.03);
+    NeuralNet* NN = new NeuralNet(inputLayerSize, hidOutLayerCount, hidOutLayerSizes, outputLayerSize, 0.3);
 
     NN->describe();
+    NN->printParamsCount();
 
-    float* input1 = genRandomFloats(inputLayerSize, 0, 1000); 
-    NN->predict(input1, inputLayerSize);
+    // Dataset with labels
+    const int samples_count = 10;
+    float** inputs = genRandom2DFloats(samples_count, inputLayerSize, 0, 100);
+    float** targets = getIdentityMatrix(samples_count, outputLayerSize);
 
-    float target1[] = {2,0,0,0,0,0,0,0,0,0};
-    NN->backPropogate(input1, inputLayerSize, target1, 10, 100);
+    // Training on All Dataset 
+    NN->train(inputs, inputLayerSize, targets, outputLayerSize, 5, 100);
 
-    NN->predict(input1, inputLayerSize);
+    // Predict
+    for (int i = 0; i < samples_count; i++)
+    {
+        NN->predict(inputs[i], inputLayerSize, targets[i], outputLayerSize);
+    }
+    cout<<"Ended"<<endl;
 }
