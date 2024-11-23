@@ -270,3 +270,18 @@ void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, 
     cout<<"oldCost : "<<oldCost<<endl;
     cout<<"newCost : "<<newCost<<endl;
 }
+void NeuralNet::printParamsCount(){
+    int weightsCount = this->inputLayerSize;
+    int biasesCount= 0;
+
+    for (int i = 1; i < this->hidOutLayerCount; i++)
+    {
+        weightsCount += this->hidOutLayerSizes[i]*this->hidOutLayerSizes[i-1];
+    }
+    for (int i = 0; i < this->hidOutLayerCount; i++)
+    {
+        biasesCount += this->hidOutLayerSizes[i];
+    }
+    cout<<"Weights Count : "<<weightsCount<<endl;
+    cout<<"Biases Count : "<<biasesCount<<endl;
+}

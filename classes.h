@@ -42,6 +42,7 @@ class NeuralNet{
     float cost(float* target, int targetArr_size);
     float getParamTCostDerivative(float& param, float* inputArr, int inputSize, float* targetArr, int targetArr_size);
     void backPropogate(float* inputArr, int inputSize, float* target, int targetArr_size, int epochs);
+    void printParamsCount();
 };
 
 #endif
