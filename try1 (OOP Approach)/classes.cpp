@@ -1,8 +1,7 @@
 #include<iostream>
-#include<cmath>
+#include<cmath> // for exp and round
 #include<cstdlib> // for rand() and srand()
-#include<ctime>
-#include<iomanip>
+#include<iomanip> // for setw
 #include "classes.h"
 using namespace std;
 
