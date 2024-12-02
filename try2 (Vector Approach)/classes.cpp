@@ -2,8 +2,9 @@
 
 MLP::MLP(int inputLayer_size, int hiddenLayers_count, int* hiddenLayers_sizes, int outputLayer_size, float lRate)
 {
-  // Initialize weight
-  // also stores the output neurons weights
+  // ------------------------------------------------------------------------
+  // -------------------- Weight Initialization Part -----------------------
+  // ------------------------------------------------------------------------
   this->weights = new float**[hiddenLayers_count +1]; // +1 for output neurons layer
   for (int i = 0; i < hiddenLayers_count; i++){
     this->weights[i] = new float*[hiddenLayers_sizes[i]];    
@@ -19,6 +20,9 @@ MLP::MLP(int inputLayer_size, int hiddenLayers_count, int* hiddenLayers_sizes, i
   for (int i2 = 0; i2 < outputLayer_size; i2++){
     this->weights[hiddenLayers_count][i2] = new float[hiddenLayers_sizes[hiddenLayers_count-1]];
   }
+  // ------------------------------------------------------------------------
+  // ------------------------------------------------------------------------
+
 }
 
 MLP::~MLP()
