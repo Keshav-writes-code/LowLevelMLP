@@ -1,6 +1,6 @@
 #include "classes.h"
 
-MLP::MLP(int inputLayer_size, int hiddenLayers_count, int* hiddenLayers_sizes, int outputLayer_size)
+MLP::MLP(int inputLayer_size, int hiddenLayers_count, int* hiddenLayers_sizes, int outputLayer_size, float lRate)
 {
   // Initialize weight
   // also stores the output neurons weights
