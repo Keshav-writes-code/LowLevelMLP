@@ -44,6 +44,7 @@ class NeuralNet{
     void backPropogate(float* inputArr, int inputSize, float* target, int targetArr_size);
     void train(float** inputArr_2d, int input_elem_size, float** targetArr_2d, int target_elem_size, int items_count, int epochs);
     void printParamsCount();
+    void constructLayer(int i);
 };
 
 #endif

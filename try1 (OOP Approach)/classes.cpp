@@ -3,6 +3,8 @@
 #include<cstdlib> // for rand() and srand()
 #include<iomanip> // for setw
 #include "classes.h"
+#include <thread>
+#include <chrono> // For duration types
 using namespace std;
 
 float decimalRounder(float x) {
@@ -83,6 +85,20 @@ void Layer::showNeurons(){
     }   
 }
 
+void NeuralNet::constructLayer(int i){
+    if (i == 0)
+    {
+        this->HidOutlayers[i] = new Layer(this->hidOutLayerSizes[i], this->inputLayerSize);
+    }
+    else if(i == hidOutLayerCount-1){
+        this->HidOutlayers[i] = new Layer(this->outputLayerSize, this->hidOutLayerSizes[i-1]);
+        this->hidOutLayerSizes[i] = this->outputLayerSize;
+    }
+    else{
+        this->HidOutlayers[i] = new Layer(this->hidOutLayerSizes[i], this->hidOutLayerSizes[i-1]);
+    }
+}
+
 NeuralNet::NeuralNet(int inputLayerSize, int hidOutLayerCount, int* hidOutLayerSizes, int outputLayerSize, float lRate){
     this->hidOutLayerCount = hidOutLayerCount;
     this->hidOutLayerSizes = hidOutLayerSizes;
@@ -90,19 +106,14 @@ NeuralNet::NeuralNet(int inputLayerSize, int hidOutLayerCount, int* hidOutLayerS
     this->inputLayerSize = inputLayerSize;
     this->outputLayerSize = outputLayerSize;
 		this->lRate = lRate;
+    thread threads[hidOutLayerCount];
     for (int i = 0; i < hidOutLayerCount; i++)
     {
-        if (i == 0)
-        {
-            this->HidOutlayers[i] = new Layer(hidOutLayerSizes[i], inputLayerSize);
-        }
-        else if(i == hidOutLayerCount-1){
-            this->HidOutlayers[i] = new Layer(outputLayerSize, hidOutLayerSizes[i-1]);
-            hidOutLayerSizes[i] = outputLayerSize;
-        }
-        else{
-            this->HidOutlayers[i] = new Layer(hidOutLayerSizes[i], hidOutLayerSizes[i-1]);
-        }
+        threads[i] = thread(&NeuralNet::constructLayer, this, i); 
+    }
+    for (int i = 0; i < hidOutLayerCount; i++)
+    {
+        threads[i].join();
     }
 }
 
