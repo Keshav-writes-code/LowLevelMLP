@@ -189,37 +189,43 @@ float* NeuralNet::feedForward(float* inputArr, int inputSize){
     return out;
 }
 
-void NeuralNet::predict(float* inputs, int inputSize, float* target, int targetSize){
-    cout<<"Inputs : ";
-    for (int i = 0; i < inputSize; i++)
+void NeuralNet::predict(float** inputs, int inputSize, float** target, int targetSize, int samplesCount){
+    float accuracy = 0;
+    for (int j = 0; j < samplesCount; j++)
     {
-        if (i != 0){cout<<", ";}
-        const float result = decimalRounder(inputs[i]);
-        cout<<result;
-        if (i == inputSize-1){cout<<endl;}
-    }
-    float* outputs = this->feedForward(inputs, inputSize);
-    const int outputSize = this->hidOutLayerSizes[this->hidOutLayerCount-1];
-    // Get highest Output
-    float max = outputs[0];
-    int maxIndex = 0;
-    for (int i = 1; i < outputSize; i++)
-    {
-        if (outputs[i] > max){
-            max = outputs[i];
-            maxIndex = i;
+        cout<<"Inputs : ";
+        for (int i = 0; i < inputSize; i++)
+        {
+            if (i != 0){cout<<", ";}
+            const float result = decimalRounder(inputs[j][i]);
+            cout<<result;
+            if (i == inputSize-1){cout<<endl;}
+        }
+        float* outputs = this->feedForward(inputs[j], inputSize);
+        const int outputSize = this->hidOutLayerSizes[this->hidOutLayerCount-1];
+        // Get highest Output
+        float max = outputs[0];
+        int maxIndex = 0;
+        for (int i = 1; i < outputSize; i++)
+        {
+            if (outputs[i] > max){
+                max = outputs[i];
+                maxIndex = i;
+            }
+        }
+        cout<<"Outputs : \n";
+        for (int i = 0; i < outputSize; i++)
+        {
+            const float result = decimalRounder(outputs[i]);
+            string color = "32"; // Green
+            if (i != maxIndex){color = "31";} // Red
+            else if (maxIndex == i && target[j][i] !=1 ){color = "33";} // Yellow
+            else if(maxIndex == i && target[j][i] ==1 ){accuracy += 100/samplesCount;}
+            cout << "\033[" << color << "m" <<  "[" << to_string(i) << "] : " << result << " => " << target[j][i] << "\033[0m";
+            cout<<endl;
         }
     }
-
-    cout<<"Outputs : \n";
-    for (int i = 0; i < outputSize; i++)
-    {
-        const float result = decimalRounder(outputs[i]);
-        string color = "32"; // Green
-        if (i != maxIndex){color = "31";} // Red
-        cout << "\033[" << color << "m" <<  "[" << to_string(i) << "] : " << result << " => " << target[i] << "\033[0m";
-        cout<<endl;
-    }
+    cout<<"Accuracy : "<<accuracy<<"%"<<endl;
 }
 
 float NeuralNet::cost(float* targetArr, int targetArr_size){
