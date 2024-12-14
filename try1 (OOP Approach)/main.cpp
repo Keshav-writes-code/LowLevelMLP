@@ -74,9 +74,6 @@ int main(){
     NN->train(inputs, inputLayerSize, targets, outputLayerSize, 5, 100);
 
     // Predict
-    for (int i = 0; i < samples_count; i++)
-    {
-        NN->predict(inputs[i], inputLayerSize, targets[i], outputLayerSize);
-    }
+    NN->predict(inputs, inputLayerSize, targets, outputLayerSize, samples_count);
     cout<<"Ended"<<endl;
 }
