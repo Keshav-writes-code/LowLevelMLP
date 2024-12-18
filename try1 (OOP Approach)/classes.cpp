@@ -153,12 +153,14 @@ void NeuralNet::resetNeuronsActivations(){
 
 float* NeuralNet::feedForward(float* inputArr, int inputSize){
     this->resetNeuronsActivations();
-    Layer* prevLayer = new Layer(inputLayerSize,0);
+    Layer* tempInputLayer = new Layer(inputLayerSize,0);
+    Layer* prevLayer = tempInputLayer;
+
     if (inputSize != this->inputLayerSize) throw runtime_error("Expected Input was Not Received");
     for (int i = 0; i < this->inputLayerSize; i++){
-        prevLayer->neurons[i]->value = inputArr[i];
+        tempInputLayer->neurons[i]->value = inputArr[i];
     }
-
+    
     // for Traversing Each Layer
     for (int i = 0; i < this->hidOutLayerCount; i++)
     {
@@ -186,6 +188,7 @@ float* NeuralNet::feedForward(float* inputArr, int inputSize){
     {
         out[i] = prevLayer->neurons[i]->value;
     }
+    delete tempInputLayer;
     return out;
 }
 
