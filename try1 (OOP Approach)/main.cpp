@@ -56,10 +56,10 @@ void print2DArray(float** matrix, int rows, int cols){
 
 int main(){
     srand(time(NULL));
-    const int inputLayerSize = 20;
-    const int hidOutLayerCount = 3;
+    const int inputLayerSize = 784;
+    const int hidOutLayerCount = 2;
     const int outputLayerSize = 10;
-    int * hidOutLayerSizes = genRandomInts(hidOutLayerCount, 3, 9);
+    int * hidOutLayerSizes = genRandomInts(hidOutLayerCount, 16, 20);
     NeuralNet* NN = new NeuralNet(inputLayerSize, hidOutLayerCount, hidOutLayerSizes, outputLayerSize, 0.3);
     
     // Dataset with labels
