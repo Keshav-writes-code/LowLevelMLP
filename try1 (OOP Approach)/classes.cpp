@@ -278,6 +278,8 @@ void NeuralNet::backPropogate(float* inputArr, int inputSize, float* targetArr, 
 void NeuralNet::train(float** inputArr_2d, int input_elem_size, float** targetArr_2d, int target_elem_size, int items_count, int epochs){
     for (int i = 0; i < epochs; i++)
     {
+        cout<<"\rProgress : "<<((float)i/epochs)*100<<"%";
+        cout.flush();
         for (int i2 = 0; i2 < items_count; i2++)
         {
             this->backPropogate(inputArr_2d[i2], input_elem_size, targetArr_2d[i2], target_elem_size);
