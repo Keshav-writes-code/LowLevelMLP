@@ -3,7 +3,7 @@
 #include<cstdlib> // for rand() and srand()
 #include<iomanip> // for setw
 #include "classes.h"
-#include <thread>
+#include <thread> // For threads
 #include <chrono> // For duration types
 using namespace std;
 
@@ -227,6 +227,7 @@ void NeuralNet::predict(float** inputs, int inputSize, float** target, int targe
             cout << "\033[" << color << "m" <<  "[" << to_string(i) << "] : " << result << " => " << target[j][i] << "\033[0m";
             cout<<endl;
         }
+        delete[] outputs;
     }
     cout<<"Accuracy : "<<accuracy<<"%"<<endl;
 }
