@@ -61,14 +61,15 @@ int main(){
     const int outputLayerSize = 10;
     int * hidOutLayerSizes = genRandomInts(hidOutLayerCount, 3, 9);
     NeuralNet* NN = new NeuralNet(inputLayerSize, hidOutLayerCount, hidOutLayerSizes, outputLayerSize, 0.3);
-
-    NN->describe();
-    NN->printParamsCount();
-
+    
     // Dataset with labels
     const int samples_count = 10;
     float** inputs = genRandom2DFloats(samples_count, inputLayerSize, 0, 100);
     float** targets = getIdentityMatrix(samples_count, outputLayerSize);
+
+
+    NN->describe();
+    NN->printParamsCount();
 
     // Training on All Dataset 
     NN->train(inputs, inputLayerSize, targets, outputLayerSize, 5, 100);
