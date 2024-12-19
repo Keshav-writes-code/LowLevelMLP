@@ -11,45 +11,37 @@ int getTerminalWidth() {
     return w.ws_col; // Return the number of columns
 }
 
-void showProgressBar(int totalSteps) {
-    for (int step = 0; step <= totalSteps; ++step) {
-        // Dynamically calculate the bar width
-        int terminalWidth = getTerminalWidth();
-        int barWidth = std::max(terminalWidth - 10, 10); // Ensure a minimum bar width
+void showProgressBar(int totalSteps, int currentStep) {
+    // Dynamically calculate the bar width
+    int terminalWidth = getTerminalWidth();
+    int barWidth = std::max(terminalWidth - 10, 10); // Ensure a minimum bar width
 
-        // Calculate the percentage completed
-        float progress = static_cast<float>(step) / totalSteps;
+    // Calculate the percentage completed
+    float progress = static_cast<float>(currentStep) / totalSteps;
 
-        // Build the progress bar
-        std::string bar = "[";
-        int pos = barWidth * progress;
-        for (int i = 0; i < barWidth; ++i) {
-            if (i < pos)
-                bar += "=";
-            else if (i == pos)
-                bar += ">";
-            else
-                bar += " ";
-        }
-        bar += "] " + std::to_string(int(progress * 100)) + "%";
-
-        // Clear the line and print the new progress bar
-        std::cout << "\r" << std::string(terminalWidth, ' ') << "\r"; // Clear line
-        std::cout << bar;
-
-        // Flush output for immediate display
-        std::cout.flush();
-
-        // Simulate work with a delay
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    // Build the progress bar
+    std::string bar = "[";
+    int pos = barWidth * progress;
+    for (int i = 0; i < barWidth; ++i) {
+        if (i < pos)
+            bar += "=";
+        else if (i == pos)
+            bar += ">";
+        else
+            bar += " ";
     }
+    bar += "] " + std::to_string(int(progress * 100)) + "%";
 
-    // End the line after the progress bar
-    std::cout << std::endl;
+    // Clear the line and print the new progress bar
+    std::cout << "\r" << std::string(terminalWidth, ' ') << "\r"; // Clear line
+    std::cout << bar;
+
+    // Flush output for immediate display
+    std::cout.flush();
 }
 
 int main() {
     int totalSteps = 100; // Total steps for the progress
-    showProgressBar(totalSteps);
+    showProgressBar(totalSteps, 1);
     return 0;
 }
