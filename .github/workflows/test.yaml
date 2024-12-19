@@ -28,12 +28,12 @@ jobs:
     - name: Build on Linux
       if: matrix.os == 'ubuntu-latest'
       run: |
-        cd try1\ \(OOP\ Approach\)/
+        cd try1\ \(OOP\ Approach\)/tests
         make
 
     - name: Build on Windows
       if: matrix.os == 'windows-latest'
       shell: msys2 {0}
       run: |
-        cd try1\ \(OOP\ Approach\)/
+        cd try1\ \(OOP\ Approach\)/tests
         make
