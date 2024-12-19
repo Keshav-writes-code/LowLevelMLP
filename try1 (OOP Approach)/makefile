@@ -13,7 +13,5 @@ $(OBJDIR)/%.o: %.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 $(OBJDIR):
 	mkdir -p $(OBJDIR)
-run: $(TARGET)
-	./$(TARGET)
 clean:
 	rm -rf $(OBJDIR) $(TARGET)
