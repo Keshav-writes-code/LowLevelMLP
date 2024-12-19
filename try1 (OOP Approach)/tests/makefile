@@ -1,14 +1,15 @@
 CXX = g++
 CXXFLAGS = 
 TARGET = my_program
-SRCS = ../main.cpp ../classes.cpp
+SRCDIR = ../src
+SRCS = $(wildcard $(SRCDIR)/*.cpp)
 OBJDIR = build
-OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(notdir $(SRCS)))
+OBJS = $(SRCS:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
-$(OBJDIR)/%.o: ../%.cpp | $(OBJDIR)
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp | $(OBJDIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 $(OBJDIR):
 	mkdir -p $(OBJDIR)

@@ -4,14 +4,19 @@
 #include <chrono>
 #include <sys/ioctl.h> // For terminal size
 #include <unistd.h>    // For STDOUT_FILENO
+#include "../include/console/progressbar.h"
 
-int getTerminalWidth() {
-    struct winsize w;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-    return w.ws_col; // Return the number of columns
+int getTerminalWidth()
+{
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+  return w.ws_col; // Return the number of columns
 }
 
-void showProgressBar(int totalSteps, int currentStep) {
+namespace Console
+{
+  void showProgressBar(int totalSteps, int currentStep)
+  {
     // Dynamically calculate the bar width
     int terminalWidth = getTerminalWidth();
     int barWidth = std::max(terminalWidth - 10, 10); // Ensure a minimum bar width
@@ -22,13 +27,14 @@ void showProgressBar(int totalSteps, int currentStep) {
     // Build the progress bar
     std::string bar = "[";
     int pos = barWidth * progress;
-    for (int i = 0; i < barWidth; ++i) {
-        if (i < pos)
-            bar += "=";
-        else if (i == pos)
-            bar += ">";
-        else
-            bar += " ";
+    for (int i = 0; i < barWidth; ++i)
+    {
+      if (i < pos)
+        bar += "=";
+      else if (i == pos)
+        bar += ">";
+      else
+        bar += " ";
     }
     bar += "] " + std::to_string(int(progress * 100)) + "%";
 
@@ -38,10 +44,5 @@ void showProgressBar(int totalSteps, int currentStep) {
 
     // Flush output for immediate display
     std::cout.flush();
-}
-
-int main() {
-    int totalSteps = 100; // Total steps for the progress
-    showProgressBar(totalSteps, 1);
-    return 0;
+  }
 }
