@@ -1,0 +1,39 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Windows
+      if: matrix.os == 'windows-latest'
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: mingw-w64-x86_64-gcc make
+
+    - name: Build on Linux
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        cd try1\ \(OOP\ Approach\)/
+        make
+
+    - name: Build on Windows
+      if: matrix.os == 'windows-latest'
+      shell: msys2 {0}
+      run: |
+        cd try1\ \(OOP\ Approach\)/
+        make
