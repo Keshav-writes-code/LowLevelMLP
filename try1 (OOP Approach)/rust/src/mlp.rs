@@ -10,7 +10,6 @@ struct Neuron {
     pub value: f32,
     pub bias: f32,
     pub weights: Vec<f32>,
-    pub prev_layer_neurons_count: u8,
 }
 impl Neuron {
     fn new(prev_layer_neurons_count: u8) -> Neuron {
@@ -24,23 +23,32 @@ impl Neuron {
             value: 0.0,
             bias: random_float(rand_range),
             weights,
-            prev_layer_neurons_count,
         }
     }
 }
-struct Layer {
-    size: u8,
+pub struct Layer {
     neurons: Vec<Neuron>,
 }
 impl Layer {
-    fn new(size: u8, prev_layer_neurons_count: u8) -> Layer {
+    pub fn new(size: u16, prev_layer_neurons_count: u8) -> Layer {
         let mut neurons: Vec<Neuron> = Vec::new();
         for _ in 0..size {
             neurons.push(Neuron::new(prev_layer_neurons_count));
         }
 
-        Layer { size, neurons }
+        Layer { neurons }
     }
-    // TODO: Add Other Function of Layer Struct
+    pub fn show_neurons(&self) {
+        for (i, neuron) in self.neurons.iter().enumerate() {
+            println!("Neuron :- {}", i);
+            println!("value :- {}", neuron.value);
+            println!("bias :- {}", neuron.bias);
+            println!("weights :");
+            for weight in neuron.weights.iter() {
+                print!("{:.2}, ", weight);
+            }
+            println!("\n");
+        }
+    }
 }
 // TODO: Add remaining Structs like MLP,
