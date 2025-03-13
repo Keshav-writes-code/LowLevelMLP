@@ -102,7 +102,7 @@ impl Mlp {
             }
         }
     }
-    pub fn feed_forward(&mut self, inputs: &Vec<f32>) -> Vec<f32> {
+    pub fn feed_forward(&mut self, inputs: &[f32]) -> Vec<f32> {
         self.reset_neurons_activations();
         if inputs.len() != self.input_layer_size as usize {
             panic!("Expected Input wasn't Received");
@@ -131,4 +131,40 @@ impl Mlp {
         }
         output
     }
+    pub fn predict(&mut self, inputs: &[Vec<f32>], targets: &[Vec<f32>]) {
+        let mut accuracy: f32 = 0.0;
+        for (input_sample, target_sample) in inputs.iter().zip(targets.iter()) {
+            println!("Inputs : ");
+            for input_sample_feature in input_sample.iter() {
+                print!("{:.2}, ", input_sample_feature);
+            }
+
+            println!("Outputs : ");
+
+            //Get the highest output
+            let outputs = self.feed_forward(input_sample);
+            let mut max: f32 = 0.0;
+            let mut max_index: u8 = 0;
+            for (i, output) in outputs.iter().enumerate() {
+                if *output > max {
+                    max = *output;
+                    max_index = i as u8;
+                }
+            }
+
+            // Show Results from feedfoward with color and target
+            for (i, output) in outputs.iter().enumerate() {
+                if i == max_index as usize && target_sample[i] == 1.0 {
+                    cprintln!("<green>[{}] : {:.2} => {}</>", i, output, target_sample[i]);
+                    accuracy += 100.0 / inputs.len() as f32;
+                } else if i == max_index as usize && target_sample[i] != 1.0 {
+                    cprintln!("<yellow>[{}] : {:.2} => {}</>", i, output, target_sample[i]);
+                } else if i != max_index as usize {
+                    cprintln!("<red>[{}] : {:.2} => {}</>", i, output, target_sample[i]);
+                }
+            }
+        }
+        println!("Accuracy : {:.2}%", accuracy);
+    }
+    // TODO: Implement outher MLP class functions
 }
