@@ -1,6 +1,6 @@
-use color_print::{cformat, cprintln};
+use color_print::{cprint, cprintln};
 use rand::Rng;
-
+mod console;
 fn random_float(rand_range: u8) -> f32 {
     let mut rng = rand::rng();
     let random_val: f32 = rng.random::<f32>();
@@ -32,7 +32,6 @@ impl Neuron {
 }
 pub struct Layer {
     neurons: Vec<Neuron>,
-    prev_layer_neurons_count: u16,
 }
 impl Layer {
     pub fn new(neurons_count: u16, prev_layer_neurons_count: u16) -> Layer {
@@ -41,10 +40,7 @@ impl Layer {
             neurons.push(Neuron::new(prev_layer_neurons_count));
         }
 
-        Layer {
-            neurons,
-            prev_layer_neurons_count,
-        }
+        Layer { neurons }
     }
     pub fn show_neurons(&self) {
         for (i, neuron) in self.neurons.iter().enumerate() {
@@ -59,14 +55,13 @@ impl Layer {
         }
     }
 }
-// TODO: Add remaining Structs like MLP,
 pub struct Mlp {
     hid_out_layers: Vec<Layer>,
     input_layer_size: u16,
     lrate: f32,
 }
 impl Mlp {
-    pub fn new(input_layer_size: u16, hid_out_layers_sizes: &Vec<u16>, lrate: f32) -> Mlp {
+    pub fn new(input_layer_size: u16, hid_out_layers_sizes: &[u16], lrate: f32) -> Mlp {
         let mut hid_out_layers: Vec<Layer> = Vec::new();
         let mut prev_layer_neurons_count: u16 = input_layer_size;
         for size in hid_out_layers_sizes.iter() {
@@ -93,7 +88,7 @@ impl Mlp {
         for layer in self.hid_out_layers.iter() {
             print!("{} | ", layer.neurons.len());
         }
-        println!();
+        println!("\n");
     }
     pub fn reset_neurons_activations(&mut self) {
         for layer in self.hid_out_layers.iter_mut() {
@@ -134,12 +129,12 @@ impl Mlp {
     pub fn predict(&mut self, inputs: &[Vec<f32>], targets: &[Vec<f32>]) {
         let mut accuracy: f32 = 0.0;
         for (input_sample, target_sample) in inputs.iter().zip(targets.iter()) {
-            println!("Inputs : ");
+            println!("\nInputs : ");
             for input_sample_feature in input_sample.iter() {
                 print!("{:.2}, ", input_sample_feature);
             }
 
-            println!("Outputs : ");
+            println!("\nOutputs : ");
 
             //Get the highest output
             let outputs = self.feed_forward(input_sample);
@@ -160,11 +155,112 @@ impl Mlp {
                 } else if i == max_index as usize && target_sample[i] != 1.0 {
                     cprintln!("<yellow>[{}] : {:.2} => {}</>", i, output, target_sample[i]);
                 } else if i != max_index as usize {
-                    cprintln!("<red>[{}] : {:.2} => {}</>", i, output, target_sample[i]);
+                    cprint!("<red>[{}] : {:.2} => </>", i, output);
+                    if target_sample[i] == 1.0 {
+                        cprintln!("<green>{}</>", target_sample[i]);
+                    } else {
+                        cprintln!("<red>{}</>", target_sample[i]);
+                    }
                 }
             }
         }
         println!("Accuracy : {:.2}%", accuracy);
     }
-    // TODO: Implement outher MLP class functions
+    pub fn cost(&self, targets: &[f32]) -> f32 {
+        let mut cost: f32 = 0.0;
+        let out_layer = self
+            .hid_out_layers
+            .last()
+            .expect("Hid Out Layers Should not be Empty");
+        for (neuron, target) in out_layer.neurons.iter().zip(targets.iter()) {
+            cost += (neuron.value - target).powf(2.0);
+        }
+        cost
+    }
+    pub fn get_param_to_cost_derivative(
+        &mut self,
+        layer_id: usize,
+        neuron_id: usize,
+        weight_id: Option<usize>,
+        is_bias: bool,
+        inputs: &[f32],
+        targets: &[f32],
+    ) -> f32 {
+        let diff: f32 = 0.0001;
+
+        // calculate cost before any nudge
+        self.feed_forward(inputs);
+        let prev_cost = self.cost(targets);
+
+        // calculate cost after the nudge
+        if is_bias {
+            self.hid_out_layers[layer_id].neurons[neuron_id].bias += diff;
+        } else {
+            self.hid_out_layers[layer_id].neurons[neuron_id].weights
+                [weight_id.expect("Weight Id Expected but not Provided")] += diff;
+        }
+        self.feed_forward(inputs);
+        let new_cost = self.cost(targets);
+
+        // reset the nudge to the bias and neurons values
+        if is_bias {
+            self.hid_out_layers[layer_id].neurons[neuron_id].bias -= diff;
+        } else {
+            self.hid_out_layers[layer_id].neurons[neuron_id].weights
+                [weight_id.expect("Weight Id Expected but not Provided")] -= diff;
+        }
+
+        //return output
+        (new_cost - prev_cost) / diff
+    }
+
+    pub fn back_propogate(&mut self, inputs: &[f32], targets: &[f32]) {
+        // go through each layer in reverse order
+        for layer_id in 0..self.hid_out_layers.len() {
+            // go through each neuron in the layer
+            for neuron_id in 0..self.hid_out_layers[layer_id].neurons.len() {
+                let bias_to_cost_derivative = self
+                    .get_param_to_cost_derivative(layer_id, neuron_id, None, true, inputs, targets);
+                self.hid_out_layers[layer_id].neurons[neuron_id].bias -=
+                    self.lrate * bias_to_cost_derivative;
+                // going through each weight of the neuron
+                for weight_id in 0..self.hid_out_layers[layer_id].neurons[neuron_id]
+                    .weights
+                    .len()
+                {
+                    let weight_to_cost_derivative: f32 = self.get_param_to_cost_derivative(
+                        layer_id,
+                        neuron_id,
+                        Some(weight_id),
+                        false,
+                        inputs,
+                        targets,
+                    );
+                    self.hid_out_layers[layer_id].neurons[neuron_id].weights[weight_id] -=
+                        self.lrate * weight_to_cost_derivative;
+                }
+            }
+        }
+    }
+    pub fn train(&mut self, inputs: &[Vec<f32>], targets: &[Vec<f32>], epochs: usize) {
+        println!("Traning Progress : ");
+        for i in 0..epochs {
+            console::update_progress_bar(i, epochs);
+            for (input, target) in inputs.iter().zip(targets.iter()) {
+                self.back_propogate(input, target);
+            }
+        }
+    }
+    pub fn print_params_count(&mut self) {
+        let mut weights_count: u16 = 0;
+        let mut biases_count: u16 = 0;
+        let mut prev_layer_neuron_count = self.input_layer_size;
+        for layer in self.hid_out_layers.iter() {
+            weights_count += prev_layer_neuron_count * layer.neurons.len() as u16;
+            biases_count += layer.neurons.len() as u16;
+            prev_layer_neuron_count = layer.neurons.len() as u16;
+        }
+        println!("Weights Count : {}", weights_count);
+        println!("Biases Count : {}", biases_count);
+    }
 }
