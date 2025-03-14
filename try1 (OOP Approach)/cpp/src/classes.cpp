@@ -140,9 +140,10 @@ namespace NeuralNet
     printInColor("|             Neural Network              |\n", "32");
     printInColor("+-----------------------------------------+\n", "32");
 
-    std::cout << "Layer Count : " << this->hidOutLayerCount << endl;
+    std::cout << "Layer Count : " << this->hidOutLayerCount+1 << endl;
     printInColor("Layer Sizes: \n", "36"); // Cyan
 
+    std::cout << setw(4) << this->inputLayerSize << " | "; 
     for (int i = 0; i < this->hidOutLayerCount; i++)
     {
       std::cout << setw(4) << this->hidOutLayerSizes[i]; // Formatting for better spacing
@@ -341,14 +342,13 @@ namespace NeuralNet
   void MLP::printParamsCount()
   {
     int weightsCount = this->inputLayerSize;
+    int prevLayerNeuronsCount = this->inputLayerSize;
     int biasesCount = 0;
 
-    for (int i = 1; i < this->hidOutLayerCount; i++)
-    {
-      weightsCount += this->hidOutLayerSizes[i] * this->hidOutLayerSizes[i - 1];
-    }
     for (int i = 0; i < this->hidOutLayerCount; i++)
     {
+      weightsCount += this->hidOutLayerSizes[i] * prevLayerNeuronsCount;
+      prevLayerNeuronsCount = this->hidOutLayerSizes[i];
       biasesCount += this->hidOutLayerSizes[i];
     }
     std::cout << "Weights Count : " << weightsCount << endl;
