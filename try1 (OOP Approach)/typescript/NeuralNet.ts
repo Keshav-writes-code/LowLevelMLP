@@ -33,9 +33,6 @@ class hidden_layer {
   forward(input: number[]) {
     this.neurons.forEach((neuron) => neuron.calculate_activation(input));
   }
-  get_last_layer_activations() {
-    return this.neurons.map((n) => n.activation);
-  }
 }
 
 class out_layer_neuron {
@@ -103,6 +100,11 @@ export class MLP {
     );
   }
 
+  get_last_layer_activations() {
+    return this.hidden_layers[this.hidden_layers.length - 1].neurons.map(
+      (n) => n.activation,
+    );
+  }
   forward_propogation(input: number[]) {
     this.hidden_layers.forEach((layer) => layer.forward(input));
 
