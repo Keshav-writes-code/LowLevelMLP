@@ -61,6 +61,7 @@ class out_layer_neuron {
 
 class out_layer {
   neurons: out_layer_neuron[];
+  input: number[];
 
   constructor(neurons_count: number, prev_layer_neurons_count: number) {
     this.neurons = Array.from(
@@ -70,6 +71,7 @@ class out_layer {
   }
 
   calculate_activation(input: number[]) {
+    this.input = input;
     let sum_of_z_exp = 0;
     this.neurons.forEach((neuron) => {
       neuron.calculate_z(input);
@@ -85,6 +87,7 @@ class out_layer {
 export class MLP {
   hidden_layers: hidden_layer[];
   output_layer: out_layer;
+  predictions: number[];
   constructor(
     input_layer_size: number,
     hidden_layer_sizes: number[],
@@ -98,6 +101,7 @@ export class MLP {
       out_layer_size,
       hidden_layer_sizes[hidden_layer_sizes.length - 1],
     );
+    this.predictions = Array.from({ length: out_layer_size }, () => 0);
   }
 
   get_last_layer_activations() {
