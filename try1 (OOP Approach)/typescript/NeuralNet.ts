@@ -112,11 +112,33 @@ export class MLP {
   forward_propogation(input: number[]) {
     this.hidden_layers.forEach((layer) => layer.forward(input));
 
-    let last_hidden_layer_activations =
-      this.hidden_layers[
-        this.hidden_layers.length - 1
-      ].get_last_layer_activations();
-    this.output_layer.calculate_activation(last_hidden_layer_activations);
-    return this.output_layer.neurons.map((n) => n.activation);
+    this.output_layer.calculate_activation(this.get_last_layer_activations());
+
+    this.predictions = this.output_layer.neurons.map((n) => n.activation);
+    return this.predictions;
+  }
+
+  loss(target: number[]) {
+    // NOTE: Assumes you have already done the Forward Propogation
+    // NOTE: Assimes the Target is in the One Hot Encoding Format
+
+    let loss = 0;
+    target.forEach((y, i) => {
+      loss -= y * Math.log(this.output_layer.neurons[i].activation);
+    });
+    return loss;
+  }
+
+  // Single Sample single adjustment
+  backpropogate(input: number[], target: number[], l_rate: number) {
+    // For output layer Weights Adjustments
+    for (const [i, x] of this.get_last_layer_activations().entries()) {
+      for (let [j, w] of this.output_layer.neurons[
+        i
+      ].weights_prev_layer.entries()) {
+        let gradient = x * (this.predictions[j] - target[j]);
+        w += l_rate * gradient;
+      }
+    }
   }
 }
