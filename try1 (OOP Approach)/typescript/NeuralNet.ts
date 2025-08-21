@@ -53,10 +53,10 @@ class out_layer_neuron {
   }
 
   calculate_z(input: number[]) {
+    this.z = this.bias;
     input.forEach((x, i) => {
       this.z += x * this.weights_prev_layer[i];
     });
-    this.z += this.bias;
   }
 }
 
