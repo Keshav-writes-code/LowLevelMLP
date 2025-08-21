@@ -143,14 +143,15 @@ export class MLP {
 
   // Single Sample single adjustment
   backpropogate(input: number[], target: number[], l_rate: number) {
+    this.forward_propogation(input);
+
     // For output layer Weights Adjustments
-      for (let [j, w] of this.output_layer.neurons[
-        i
-      ].weights_prev_layer.entries()) {
-        let gradient = x * (this.predictions[j] - target[j]);
-        w += l_rate * gradient;
-      }
     for (const [i, x] of this.get_last_hidden_layer_activations().entries()) {
+      this.output_layer.neurons[i].weights_prev_layer =
+        this.output_layer.neurons[i].weights_prev_layer.map((w, j) => {
+          let gradient = x * (this.predictions[j] - target[j]);
+          return w - l_rate * gradient;
+        });
     }
   }
 }
