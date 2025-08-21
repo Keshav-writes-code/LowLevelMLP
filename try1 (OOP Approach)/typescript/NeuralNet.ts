@@ -18,6 +18,7 @@ class hidden_layer_neuron {
     });
     z += this.bias;
     this.activation = sigmoid(z);
+    return this.activation;
   }
 }
 
@@ -31,7 +32,7 @@ class hidden_layer {
   }
 
   forward(input: number[]) {
-    this.neurons.forEach((neuron) => neuron.calculate_activation(input));
+    return this.neurons.map((neuron) => neuron.calculate_activation(input));
   }
 }
 
@@ -110,7 +111,16 @@ export class MLP {
     );
   }
   forward_propogation(input: number[]) {
-    this.hidden_layers.forEach((layer) => layer.forward(input));
+    this.hidden_layers.forEach((layer, i) => {
+      let intermedia_activations: number[] = [];
+
+      // Pass Inputs to the 1st Layer
+      if (i == 0) {
+        intermedia_activations = layer.forward(input);
+      } else {
+        intermedia_activations = layer.forward(intermedia_activations);
+      }
+    });
 
     this.output_layer.calculate_activation(this.get_last_layer_activations());
 
