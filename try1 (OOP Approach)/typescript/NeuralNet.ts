@@ -105,7 +105,7 @@ export class MLP {
     this.predictions = Array.from({ length: out_layer_size }, () => 0);
   }
 
-  get_last_layer_activations() {
+  get_last_hidden_layer_activations() {
     return this.hidden_layers[this.hidden_layers.length - 1].neurons.map(
       (n) => n.activation,
     );
@@ -122,7 +122,9 @@ export class MLP {
       }
     });
 
-    this.output_layer.calculate_activation(this.get_last_layer_activations());
+    this.output_layer.calculate_activation(
+      this.get_last_hidden_layer_activations(),
+    );
 
     this.predictions = this.output_layer.neurons.map((n) => n.activation);
     return this.predictions;
@@ -142,13 +144,13 @@ export class MLP {
   // Single Sample single adjustment
   backpropogate(input: number[], target: number[], l_rate: number) {
     // For output layer Weights Adjustments
-    for (const [i, x] of this.get_last_layer_activations().entries()) {
       for (let [j, w] of this.output_layer.neurons[
         i
       ].weights_prev_layer.entries()) {
         let gradient = x * (this.predictions[j] - target[j]);
         w += l_rate * gradient;
       }
+    for (const [i, x] of this.get_last_hidden_layer_activations().entries()) {
     }
   }
 }
