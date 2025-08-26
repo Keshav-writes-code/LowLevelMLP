@@ -4,6 +4,7 @@ class hidden_layer_neuron {
   activation: number;
   weights_prev_layer: number[];
   bias: number;
+  z: number;
   constructor(prev_layer_neurons: number) {
     this.activation = 0;
     this.weights_prev_layer = Array.from({ length: prev_layer_neurons }, () =>
@@ -17,6 +18,7 @@ class hidden_layer_neuron {
       z += x * this.weights_prev_layer[i];
     });
     z += this.bias;
+    this.z = z;
     this.activation = sigmoid(z);
     return this.activation;
   }
@@ -145,13 +147,50 @@ export class MLP {
   backpropogate(input: number[], target: number[], l_rate: number) {
     this.forward_propogation(input);
 
-    // For output layer Weights Adjustments
-    for (const [i, x] of this.get_last_hidden_layer_activations().entries()) {
-      this.output_layer.neurons[i].weights_prev_layer =
-        this.output_layer.neurons[i].weights_prev_layer.map((w, j) => {
-          let gradient = x * (this.predictions[j] - target[j]);
-          return w - l_rate * gradient;
+    // For output layer Weights & Bias Adjustments
+    let a_prev = this.get_last_hidden_layer_activations();
+    let output_layer_deltas: number[] = [];
+    this.output_layer.neurons.forEach((neuron, i) => {
+      output_layer_deltas[i] = this.predictions[i] - target[i];
+      neuron.weights_prev_layer = neuron.weights_prev_layer.map(
+        (w, j) => w - l_rate * a_prev[j] * output_layer_deltas[i],
+      );
+      neuron.bias -= l_rate * output_layer_deltas[i];
+    });
+
+    // for hidden layer Weights Adjustment
+    let next_layer_deltas = output_layer_deltas;
+    for (
+      let layer_idx = this.hidden_layers.length - 1;
+      layer_idx >= 0;
+      layer_idx--
+    ) {
+      const current_layer = this.hidden_layers[layer_idx];
+      const next_layer =
+        layer_idx == this.hidden_layers.length - 1
+          ? this.output_layer
+          : this.hidden_layers[layer_idx + 1];
+      const a_prev =
+        layer_idx == 0
+          ? input
+          : this.hidden_layers[layer_idx - 1].neurons.map((n) => n.activation);
+      const current_layer_deltas: number[] = [];
+      current_layer.neurons.forEach((n, i) => {
+        let error_sum = 0;
+        next_layer.neurons.forEach((n_next, j) => {
+          error_sum += next_layer_deltas[j] * n_next.weights_prev_layer[i];
         });
+
+        const activation_derivative = n.z > 0 ? 1 : 0;
+        const delta = activation_derivative * error_sum;
+        current_layer_deltas.push(delta);
+
+        n.weights_prev_layer = n.weights_prev_layer.map(
+          (w, j) => w - l_rate * a_prev[j] * delta,
+        );
+        n.bias -= l_rate * delta;
+      });
+      next_layer_deltas = current_layer_deltas;
     }
   }
 }
