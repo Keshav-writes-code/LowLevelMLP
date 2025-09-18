@@ -4,7 +4,8 @@
 namespace NeuralNet {
 class Neuron {
 public:
-  float value;
+  float activation;
+  float z;
   float bias;
   float *weights;
   int prevLayerNeurons_count;

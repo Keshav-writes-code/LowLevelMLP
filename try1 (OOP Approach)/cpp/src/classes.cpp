@@ -28,7 +28,8 @@ namespace NeuralNet {
 Neuron::Neuron(int prevLayerNeurons_count) {
   this->prevLayerNeurons_count = prevLayerNeurons_count;
   float randRange = 1;
-  this->value = 0;
+  this->activation = 0;
+  this->z = 0;
   this->bias = decimalRounder(getRandom(randRange));
   this->weights = new float[prevLayerNeurons_count];
 
@@ -40,7 +41,7 @@ Neuron::Neuron(int prevLayerNeurons_count) {
 Neuron::~Neuron() {
   delete[] this->weights;
   this->weights = nullptr;
-  this->value = 0;
+  this->activation = 0;
   this->bias = 0;
 }
 
@@ -64,7 +65,7 @@ Layer::~Layer() {
 void Layer::showNeurons() {
   for (int i = 0; i < this->size; i++) {
     std::cout << "Neuron - " << i << std::endl;
-    std::cout << "value : " << this->neurons[i]->value << std::endl;
+    std::cout << "value : " << this->neurons[i]->activation << std::endl;
     std::cout << "bias :- " << this->neurons[i]->bias << std::endl;
     std::cout << "weights: ";
 
@@ -137,7 +138,7 @@ void MLP::resetNeuronsActivations() {
   for (int i = 0; i < this->hidOutLayerCount; i++) {
     // for Traversing Each Neuron of a Layer
     for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++) {
-      this->HidOutlayers[i]->neurons[i2]->value = 0;
+      this->HidOutlayers[i]->neurons[i2]->activation = 0;
     }
   }
 }
@@ -150,7 +151,7 @@ void MLP::feedForward(float *inputArr, int inputSize) {
   if (inputSize != this->inputLayerSize)
     throw runtime_error("Expected Input was Not Received");
   for (int i = 0; i < this->inputLayerSize; i++) {
-    tempInputLayer->neurons[i]->value = inputArr[i];
+    tempInputLayer->neurons[i]->activation = inputArr[i];
   }
 
   // for Traversing Each Layer
@@ -161,9 +162,9 @@ void MLP::feedForward(float *inputArr, int inputSize) {
       float weightedSum = 0;
       // For traversing each Weight of current Neuron
       for (int i3 = 0; i3 < cNeuron->prevLayerNeurons_count; i3++) {
-        weightedSum += prevLayer->neurons[i3]->value * cNeuron->weights[i3];
+        cNeuron->z += prevLayer->neurons[i3]->activation * cNeuron->weights[i3];
       }
-      cNeuron->value += sigmoid(weightedSum) + cNeuron->bias;
+      cNeuron->activation += sigmoid(cNeuron->z) + cNeuron->bias;
       // TO DIplay Each Neuron's Final Activation in a Formatted way
       // std::cout<<"Neuron ["<<i<<"]"<<"["<<i2<<"] : "<<cNeuron->value<<endl;
     }
@@ -173,7 +174,7 @@ void MLP::feedForward(float *inputArr, int inputSize) {
   // for Returning output
   const int outputSize = this->hidOutLayerSizes[this->hidOutLayerCount - 1];
   for (int i = 0; i < outputSize; i++) {
-    this->predictions[i] = prevLayer->neurons[i]->value;
+    this->predictions[i] = prevLayer->neurons[i]->activation;
   }
   delete tempInputLayer;
 }
@@ -232,7 +233,7 @@ float MLP::cost(float *targetArr, int targetArr_size) {
 
   float cost = 0;
   for (int i = 0; i < this->outputLayerSize; i++) {
-    cost += pow(outLayer->neurons[i]->value - targetArr[i], 2);
+    cost += pow(outLayer->neurons[i]->activation - targetArr[i], 2);
   }
   return cost;
 }
@@ -263,7 +264,7 @@ void MLP::backPropogate(float *inputArr, int inputSize, float *targetArr,
   float *a_prev = new float[last_hidden_layer_size]();
   for (int i = 0; i < last_hidden_layer_size; i++) {
     a_prev[i] =
-        this->HidOutlayers[this->hidOutLayerCount - 2]->neurons[i]->value;
+        this->HidOutlayers[this->hidOutLayerCount - 2]->neurons[i]->activation;
   }
 
   float *output_layer_deltas = new float[this->outputLayerSize]();
