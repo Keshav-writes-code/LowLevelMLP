@@ -175,6 +175,41 @@ void MLP::feedForward(float *inputArr, int inputSize) {
     }
   }
 
+  // this->resetNeuronsActivations();
+  // Layer *tempInputLayer = new Layer(inputLayerSize, 0);
+  // Layer *prevLayer = tempInputLayer;
+  //
+  // if (inputSize != this->inputLayerSize)
+  //   throw runtime_error("Expected Input was Not Received");
+  // for (int i = 0; i < this->inputLayerSize; i++) {
+  //   tempInputLayer->neurons[i]->activation = inputArr[i];
+  // }
+  //
+  // // for Traversing Each Layer
+  // for (int i = 0; i < this->hidOutLayerCount; i++) {
+  //   // for Traversing Each Neuron of a Layer
+  //   for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++) {
+  //     Neuron *cNeuron = this->HidOutlayers[i]->neurons[i2];
+  //
+  //     // For traversing each Weight of current Neuron
+  //     for (int i3 = 0; i3 < cNeuron->prevLayerNeurons_count; i3++) {
+  //       cNeuron->z += prevLayer->neurons[i3]->activation *
+  //       cNeuron->weights[i3];
+  //     }
+  //     cNeuron->activation += sigmoid(cNeuron->z) + cNeuron->bias;
+  //     // TO DIplay Each Neuron's Final Activation in a Formatted way
+  //     // std::cout<<"Neuron ["<<i<<"]"<<"["<<i2<<"] :
+  //     "<<cNeuron->value<<endl;
+  //   }
+  //   prevLayer = this->HidOutlayers[i];
+  // }
+  //
+  // // for Returning output
+  // const int outputSize = this->hidOutLayerSizes[this->hidOutLayerCount - 1];
+  // for (int i = 0; i < outputSize; i++) {
+  //   this->predictions[i] = prevLayer->neurons[i]->activation;
+  // }
+  // delete tempInputLayer;
 }
 
 void MLP::predict(float **inputs, int inputSize, float **target, int targetSize,
@@ -278,8 +313,48 @@ void MLP::backPropogate(float *inputArr, int inputSize, float *targetArr,
     }
     n->bias -= l_rate * output_layer_deltas[i];
   }
+  // delete[] a_prev;
 
   // For hidden layer Weights Adjustments
+  // const float *next_layer_deltas = output_layer_deltas;
+  // for (int layer_idx = this->hidOutLayerCount - 2; layer_idx >= 0;
+  //      layer_idx--) {
+  //   float *a_prev;
+  //   if (layer_idx == 0) {
+  //     a_prev = inputArr;
+  //   } else {
+  //     a_prev = new float[this->hidOutLayerSizes[layer_idx - 1]]();
+  //     for (int i = 0; i < this->hidOutLayerSizes[layer_idx - 1]; i++) {
+  //       a_prev[i] = this->HidOutlayers[layer_idx -
+  //       1]->neurons[i]->activation;
+  //     }
+  //   }
+  //   float *current_layer_deltas =
+  //       new float[this->hidOutLayerSizes[layer_idx]]();
+  //
+  //   // Write the actuall code here
+  //   for (int i = 0; i < this->hidOutLayerSizes[layer_idx]; i++) {
+  //     Neuron *n = this->HidOutlayers[layer_idx]->neurons[i];
+  //     float error_sum = 0;
+  //     for (int j = 0; j < this->hidOutLayerSizes[layer_idx + 1]; j++) {
+  //       const Neuron *n_next = this->HidOutlayers[layer_idx + 1]->neurons[j];
+  //       error_sum += next_layer_deltas[j] * n_next->weights[i];
+  //     }
+  //     const float activation_derivative = n->z > 0 ? 1 : 0;
+  //     const float delta = activation_derivative * error_sum;
+  //     current_layer_deltas[i] = delta;
+  //     for (int k = 0; k < n->prevLayerNeurons_count; k++) {
+  //       n->weights[k] -= l_rate * a_prev[k] * delta;
+  //     }
+  //     n->bias -= l_rate * delta;
+  //     next_layer_deltas = current_layer_deltas;
+  //   }
+  //   delete[] current_layer_deltas;
+  //
+  //   if (layer_idx != 0) {
+  //     delete[] a_prev;
+  //   }
+  // }
 
   // for (int i = this->hidOutLayerCount - 1; i >= 0; i--) {
   //   // for Traversing Each Neuron of a Layer
