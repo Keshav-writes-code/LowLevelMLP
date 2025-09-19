@@ -21,6 +21,7 @@ public:
   Neuron **neurons;
   Layer(int size, int prevLayerSize);
   ~Layer();
+  void forward_pass(float *inputs, int input_size);
   void showNeurons();
 };
 

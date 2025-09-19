@@ -75,6 +75,21 @@ void Layer::showNeurons() {
     std::cout << endl << endl;
   }
 }
+void Layer::forward_pass(float *inputs, int input_size) {
+  if (input_size != this->neurons[0]->prevLayerNeurons_count)
+    throw runtime_error("Forward Pass: Expected Input Size was Not Received");
+
+  for (int i = 0; i < this->size; i++) {
+    Neuron *n = this->neurons[i];
+    for (int j = 0; j < n->prevLayerNeurons_count; j++) {
+      n->z += n->weights[j] * inputs[j];
+    }
+    n->z += n->bias;
+    n->activation = sigmoid(n->z);
+    this->activations[i] = n->activation;
+    std::cout << "Helo : " << sigmoid(n->z) << "\n";
+  }
+}
 
 void MLP::constructLayer(int i) {
   if (i == 0) {
@@ -144,38 +159,22 @@ void MLP::resetNeuronsActivations() {
 
 void MLP::feedForward(float *inputArr, int inputSize) {
   this->resetNeuronsActivations();
-  Layer *tempInputLayer = new Layer(inputLayerSize, 0);
-  Layer *prevLayer = tempInputLayer;
 
-  if (inputSize != this->inputLayerSize)
-    throw runtime_error("Expected Input was Not Received");
-  for (int i = 0; i < this->inputLayerSize; i++) {
-    tempInputLayer->neurons[i]->activation = inputArr[i];
-  }
+  // Tranver Layers
 
-  // for Traversing Each Layer
+  float *intermediate_activations;
   for (int i = 0; i < this->hidOutLayerCount; i++) {
-    // for Traversing Each Neuron of a Layer
-    for (int i2 = 0; i2 < this->hidOutLayerSizes[i]; i2++) {
-      Neuron *cNeuron = this->HidOutlayers[i]->neurons[i2];
-      float weightedSum = 0;
-      // For traversing each Weight of current Neuron
-      for (int i3 = 0; i3 < cNeuron->prevLayerNeurons_count; i3++) {
-        cNeuron->z += prevLayer->neurons[i3]->activation * cNeuron->weights[i3];
-      }
-      cNeuron->activation += sigmoid(cNeuron->z) + cNeuron->bias;
-      // TO DIplay Each Neuron's Final Activation in a Formatted way
-      // std::cout<<"Neuron ["<<i<<"]"<<"["<<i2<<"] : "<<cNeuron->value<<endl;
+    Layer *c_layer = this->HidOutlayers[i];
+    if (i == 0) {
+      c_layer->forward_pass(inputArr, inputSize);
+      intermediate_activations = c_layer->activations;
+    } else {
+      c_layer->forward_pass(intermediate_activations,
+                            this->hidOutLayerSizes[i - 1]);
+      intermediate_activations = c_layer->activations;
     }
-    prevLayer = this->HidOutlayers[i];
   }
 
-  // for Returning output
-  const int outputSize = this->hidOutLayerSizes[this->hidOutLayerCount - 1];
-  for (int i = 0; i < outputSize; i++) {
-    this->predictions[i] = prevLayer->neurons[i]->activation;
-  }
-  delete tempInputLayer;
 }
 
 void MLP::predict(float **inputs, int inputSize, float **target, int targetSize,
