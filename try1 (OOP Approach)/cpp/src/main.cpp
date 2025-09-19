@@ -56,8 +56,8 @@ int main() {
   const int hidOutLayerCount = 2;
   const int outputLayerSize = 10;
   int *hidOutLayerSizes = genRandomInts(hidOutLayerCount, 16, 20);
-  NeuralNet::MLP *MLP = new NeuralNet::MLP(
-      inputLayerSize, hidOutLayerCount, hidOutLayerSizes, outputLayerSize, 0.01);
+  NeuralNet::MLP *MLP = new NeuralNet::MLP(inputLayerSize, hidOutLayerCount,
+                                           hidOutLayerSizes, outputLayerSize);
 
   // Dataset with labels
   const int samples_count = 10;
@@ -68,7 +68,7 @@ int main() {
   MLP->printParamsCount();
 
   // Training on All Dataset
-  MLP->train(inputs, inputLayerSize, targets, outputLayerSize, 5, 100);
+  MLP->train(inputs, inputLayerSize, targets, outputLayerSize, 5, 100, 0.1);
 
   // Predict
   MLP->predict(inputs, inputLayerSize, targets, outputLayerSize, samples_count);

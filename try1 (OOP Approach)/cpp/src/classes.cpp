@@ -91,13 +91,12 @@ void MLP::constructLayer(int i) {
 }
 
 MLP::MLP(int inputLayerSize, int hidOutLayerCount, int *hidOutLayerSizes,
-         int outputLayerSize, float lRate) {
+         int outputLayerSize) {
   this->hidOutLayerCount = hidOutLayerCount;
   this->hidOutLayerSizes = hidOutLayerSizes;
   this->HidOutlayers = new Layer *[hidOutLayerCount];
   this->inputLayerSize = inputLayerSize;
   this->outputLayerSize = outputLayerSize;
-  this->lRate = lRate;
   this->predictions = new float[outputLayerSize]();
   thread threads[hidOutLayerCount];
   for (int i = 0; i < hidOutLayerCount; i++) {
@@ -255,7 +254,7 @@ float MLP::getParamTCostDerivative(float &param, float *inputArr, int inputSize,
 }
 
 void MLP::backPropogate(float *inputArr, int inputSize, float *targetArr,
-                        int targetArr_size) {
+                        int targetArr_size, float l_rate) {
   this->feedForward(inputArr, inputSize);
 
   // For output layer Weights & Bias Adjustments
@@ -272,9 +271,9 @@ void MLP::backPropogate(float *inputArr, int inputSize, float *targetArr,
     Neuron *n = this->HidOutlayers[this->hidOutLayerCount - 1]->neurons[i];
     output_layer_deltas[i] = this->predictions[i] - targetArr[i];
     for (int j = 0; j < n->prevLayerNeurons_count; j++) {
-      n->weights[j] -= this->lRate * a_prev[j] * output_layer_deltas[i];
+      n->weights[j] -= l_rate * a_prev[j] * output_layer_deltas[i];
     }
-    n->bias -= this->lRate * output_layer_deltas[i];
+    n->bias -= l_rate * output_layer_deltas[i];
   }
 
   // For hidden layer Weights Adjustments
@@ -303,14 +302,15 @@ void MLP::backPropogate(float *inputArr, int inputSize, float *targetArr,
 }
 
 void MLP::train(float **inputArr_2d, int input_elem_size, float **targetArr_2d,
-                int target_elem_size, int items_count, int epochs) {
+                int target_elem_size, int items_count, int epochs,
+                float l_rate) {
   std::cout << "\nTraining Progress :\n";
   for (int i = 0; i < epochs; i++) {
     Console::showProgressBar(epochs, i);
     std::cout.flush();
     for (int i2 = 0; i2 < items_count; i2++) {
       this->backPropogate(inputArr_2d[i2], input_elem_size, targetArr_2d[i2],
-                          target_elem_size);
+                          target_elem_size, l_rate);
     }
   }
 }

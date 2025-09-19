@@ -31,12 +31,11 @@ private:
   int *hidOutLayerSizes;
   int inputLayerSize;
   int outputLayerSize;
-  float lRate;
   float *predictions;
 
 public:
   MLP(int inputLayerSize, int hidOutLayerCount, int *hidOutLayerSizes,
-      int outputLayerSize, float lRate);
+      int outputLayerSize);
   ~MLP();
   void describe();
   void resetNeuronsActivations();
@@ -47,9 +46,9 @@ public:
   float getParamTCostDerivative(float &param, float *inputArr, int inputSize,
                                 float *targetArr, int targetArr_size);
   void backPropogate(float *inputArr, int inputSize, float *target,
-                     int targetArr_size);
+                     int targetArr_size, float l_rate);
   void train(float **inputArr_2d, int input_elem_size, float **targetArr_2d,
-             int target_elem_size, int items_count, int epochs);
+             int target_elem_size, int items_count, int epochs, float l_rate);
   void printParamsCount();
   void constructLayer(int i);
 };
