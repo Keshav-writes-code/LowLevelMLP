@@ -43,6 +43,7 @@ public:
   void feed_forward(float *inputs);
   void predict(float **feature_samples, float **target_samples,
                int samples_count);
+  void back_propogate(float *features, float *targets, float l_rate);
 };
 
 } // namespace NeuralNet

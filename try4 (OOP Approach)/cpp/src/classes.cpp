@@ -169,6 +169,7 @@ void MLP::feed_forward(float *inputs) {
   }
   this->predictions = intermediate_activations;
 }
+
 void MLP::predict(float **feature_samples, float **target_samples,
                   int samples_count) {
   float accuracy = 0;
@@ -216,5 +217,7 @@ void MLP::predict(float **feature_samples, float **target_samples,
   std::cout << "Accuracy : " << accuracy << "%" << std::endl;
   ;
 }
+
+void MLP::back_propogate(float *features, float *targets, float l_rate) {}
 
 } // namespace NeuralNet
