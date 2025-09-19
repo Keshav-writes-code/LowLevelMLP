@@ -225,13 +225,17 @@ void MLP::predict(float **inputs, int inputSize, float **target, int targetSize,
 }
 
 float MLP::loss(float *targetArr, int targetArr_size) {
+  // NOTE:: Assumes a forward pass has already done
+
   Layer *outLayer = this->HidOutlayers[this->hidOutLayerCount - 1];
   if (targetArr_size != this->outputLayerSize)
     throw runtime_error("Expected Target Array Size was Not Received");
 
   float loss = 0;
   for (int i = 0; i < this->outputLayerSize; i++) {
-    cost += pow(outLayer->neurons[i]->activation - targetArr[i], 2);
+    loss -= targetArr[i] * log(this->HidOutlayers[this->hidOutLayerCount - 1]
+                                   ->neurons[i]
+                                   ->activation);
   }
   return loss;
 }
