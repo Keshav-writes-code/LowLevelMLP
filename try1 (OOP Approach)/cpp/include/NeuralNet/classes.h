@@ -42,7 +42,7 @@ public:
   void feedForward(float *inputs, int inputSize);
   void predict(float **inputs, int inputSize, float **target, int targetSize,
                int samplesCount);
-  float cost(float *target, int targetArr_size);
+  float loss(float *target, int targetArr_size);
   float getParamTCostDerivative(float &param, float *inputArr, int inputSize,
                                 float *targetArr, int targetArr_size);
   void backPropogate(float *inputArr, int inputSize, float *target,

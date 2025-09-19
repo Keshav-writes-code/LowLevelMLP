@@ -225,27 +225,27 @@ void MLP::predict(float **inputs, int inputSize, float **target, int targetSize,
   std::cout << "Accuracy : " << accuracy << "%" << endl;
 }
 
-float MLP::cost(float *targetArr, int targetArr_size) {
+float MLP::loss(float *targetArr, int targetArr_size) {
   Layer *outLayer = this->HidOutlayers[this->hidOutLayerCount - 1];
   if (targetArr_size != this->outputLayerSize)
     throw runtime_error("Expected Target Array Size was Not Received");
 
-  float cost = 0;
+  float loss = 0;
   for (int i = 0; i < this->outputLayerSize; i++) {
     cost += pow(outLayer->neurons[i]->activation - targetArr[i], 2);
   }
-  return cost;
+  return loss;
 }
 float MLP::getParamTCostDerivative(float &param, float *inputArr, int inputSize,
                                    float *targetArr, int targetArr_size) {
   float derivative = 0;
   this->feedForward(inputArr, inputSize);
   float diff = 0.0001;
-  float previousCost = this->cost(targetArr, targetArr_size);
+  float previousCost = this->loss(targetArr, targetArr_size);
   param += diff;
 
   this->feedForward(inputArr, inputSize);
-  float newCost = this->cost(targetArr, targetArr_size);
+  float newCost = this->loss(targetArr, targetArr_size);
 
   this->feedForward(inputArr, inputSize);
   param -= diff;
