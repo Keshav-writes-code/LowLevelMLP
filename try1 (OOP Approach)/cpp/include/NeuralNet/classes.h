@@ -31,7 +31,7 @@ private:
   int *hidOutLayerSizes;
   int inputLayerSize;
   int outputLayerSize;
-  float *predictions;
+  const float *predictions;
 
 public:
   MLP(int inputLayerSize, int hidOutLayerCount, int *hidOutLayerSizes,
