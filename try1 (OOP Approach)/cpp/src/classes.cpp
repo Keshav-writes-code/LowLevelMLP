@@ -48,6 +48,7 @@ Neuron::~Neuron() {
 Layer::Layer(int size, int prevLayerSize) {
   this->size = size;
   this->neurons = new Neuron *[size];
+  this->activations = new float[size]();
 
   for (int i = 0; i < size; i++) {
     this->neurons[i] = new Neuron(prevLayerSize);

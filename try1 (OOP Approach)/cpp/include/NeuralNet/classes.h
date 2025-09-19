@@ -19,6 +19,7 @@ private:
 
 public:
   Neuron **neurons;
+  float *activations;
   Layer(int size, int prevLayerSize);
   ~Layer();
   void forward_pass(float *inputs, int input_size);
